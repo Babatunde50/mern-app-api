@@ -11,6 +11,8 @@ const compression = require('compression');
 const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/error');
+const userRoutes = require('./routes/player');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -47,9 +49,8 @@ app.use(
 
 app.use(compression());
 
-app.get('/', (req, res) => {
-    res.json({message: "Sucessfully setup your backend server."})
-})
+app.use('/api/players', userRoutes);
+app.use('/api/auth', authRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
