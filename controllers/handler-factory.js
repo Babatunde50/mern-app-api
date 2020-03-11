@@ -16,7 +16,15 @@ exports.deleteOne = Model =>
 
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+    const allowedFields = ['name', 'email']
+    const updatedFields = {}
+    for(key in req.body) {
+      if(allowedFields.includes(key)) {
+        updatedFields[key] = req.body[key]
+      }
+    }
+    
+    const doc = await Model.findByIdAndUpdate(req.params.id, updatedFields, {
       new: true,
       runValidators: true
     });
@@ -61,8 +69,12 @@ exports.getOne = (Model, popOptions) =>
 
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
+    
     let filter = {};
-    if (req.params.tourId) filter = { tour: req.params.tourId };
+    if (req.params.type && ['player', 'referee', 'admin'].includes(req.params.type) ) {
+      filter = { type: req.params.type };
+    } 
+    console.log(req.query)
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()

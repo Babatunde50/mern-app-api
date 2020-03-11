@@ -1,35 +1,26 @@
-const User = require('../models/user');
+const Team = require('../models/team');
 const catchAsync = require('../utils/catch-async');
-// const AppError = require('../utils/app-errors');
 const factory = require('./handler-factory');
 
-const filterObj = (obj, ...allowedFields) => {
-  const newObj = {};
 
-  Object.keys(obj).forEach(el => {
-    if (allowedFields.includes(el)) {
-      newObj[el] = obj[el];
-    }
-  });
+exports.getTeam = factory.getOne(Team);
 
-  return newObj;
-};
+exports.updateTeam = factory.updateOne(Team);
 
-exports.getUser = factory.getOne(User);
+exports.getAllTeams = factory.getAll(Team);
 
-exports.updateUser = factory.updateOne(User);
 
-exports.getAllUsers = factory.getAll(User);
-
-exports.deleteUser = catchAsync(async (req, res, next) => {
-    await User.findByIdAndUpdate(req.user._id, { isActive: false });
+//   const filterObj = (obj, ...allowedFields) => {
+//     const newObj = {};
   
-    res.status(204).json({
-      status: 'success',
-      data: null
-    });
-  });
+//     Object.keys(obj).forEach(el => {
+//       if (allowedFields.includes(el)) {
+//         newObj[el] = obj[el];
+//       }
+//     });
   
+//     return newObj;
+//   };
 
 // exports.getMe = (req, res, next) => {
 //   req.params.id = req.user._id;
