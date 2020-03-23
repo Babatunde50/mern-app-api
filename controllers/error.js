@@ -42,6 +42,9 @@ const sendErrorDev = (err, req, res) => {
 
 const sendErrorProd = (err, req, res) => {
   if (req.originalUrl.startsWith('/api')) {
+    if(!('message' in err)) {
+      err.message = "Invalid Email or Password"
+    }
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
@@ -58,11 +61,6 @@ const sendErrorProd = (err, req, res) => {
       title: 'Something went wrong!',
       msg: err.message
     });
-  } else {
-    res.status(err.statusCode).render('error', {
-      title: 'Something went wrong!',
-      msg: 'Please try again later'
-    });
   }
 };
 
@@ -72,6 +70,7 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
+    console.log('Production');
     let error = { ...err };
     if (error.name === 'CastError') {
       error = handleCastError(error);

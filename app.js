@@ -51,7 +51,7 @@ app.use(
 app.use(compression());
 
 app.use('/api/users', userRoutes);
-app.use('/api/teams', teamRoutes)
+app.use('/api/teams', teamRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));

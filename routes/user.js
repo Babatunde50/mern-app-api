@@ -5,7 +5,11 @@ const {
   getUser,
   getMe,
   deleteMe,
-  updateMe
+  updateMePic,
+  updateMePassword,
+  updateMeBasic,
+  uploadUserPhoto,
+  resizeUserPhoto
 } = require('../controllers/user');
 
 const { protect, login, signup } = require('../controllers/auth');
@@ -20,7 +24,9 @@ router.post('/signup/:type', signup);
 router.use(protect);
 
 router.get('/me', getMe, getUser);
-router.patch('/update-me', updateMe);
+router.patch('/update-me/basic-info', updateMeBasic);
+router.patch('/update-me/pics', uploadUserPhoto, resizeUserPhoto, updateMePic);
+router.patch('/update-me/password', updateMePassword);
 router.delete('/delete-me', deleteMe);
 
 module.exports = router;
