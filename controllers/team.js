@@ -21,7 +21,7 @@ const filterObj = (obj, ...allowedFields) => {
     next();
   };
   
-  exports.updateTeam = catchAsync(async (req, res, next) => {
+  exports.updateTeamBasics = catchAsync(async (req, res, next) => {
     if (req.body.password) {
       return next(new AppError('This route is not for password update', 400));
     }
@@ -35,13 +35,65 @@ const filterObj = (obj, ...allowedFields) => {
     res.status(200).json({
       status: 'success',
       data: {
-        user: updatedTeam
+        team: updatedTeam
+      }
+    });
+  });
+
+  exports.updateTeamPic = catchAsync(async (req, res, next) => {
+    if (!req.file || !req.file.filename) {
+      return next(new AppError('Please provide an image'));
+    }
+    const updatedTeam = await Team.findByIdAndUpdate(
+      req.user._id,
+      { photo: req.file.filename },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+    res.status(200).json({
+      status: 'success',
+      data: {
+        team: updatedTeam
+      }
+    });
+  });
+
+  exports.updateTeamPassword = catchAsync(async (req, res, next) => {
+    const filteredBody = filterObj(req.body, 'initialPassword', 'newPassword');
+    const team = await Team.findById(req.user._id).select('+password');
+    const isPasswordCorrect = await team.correctPassword(
+      filteredBody.initialPassword,
+      team.password
+    );
+    if (!isPasswordCorrect) {
+      return next(new AppError('Password is not correct.'));
+    }
+    team.password = filteredBody.newPassword;
+    await team.save();
+   const newTeam = {
+     ...team._doc,
+     password: undefined,
+     passwordChangedAt: undefined
+   }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: newTeam
       }
     });
   });
   
   
-exports.deleteTeam = factory.deleteOne(Team);
+  exports.deleteTeam = catchAsync(async (req, res, next) => {
+    await Team.findByIdAndUpdate(req.user._id, { isActive: false });
+  
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  });
 
 exports.getTeam = factory.getOne(Team);
 

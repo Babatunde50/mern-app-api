@@ -6,6 +6,8 @@ const User = require('../models/user');
 const Team = require('../models/team');
 const catchAsync = require('../utils/catch-async');
 
+const getCoordsForAddress = require('../utils/location');
+
 const AppError = require('../utils/app-errors');
 
 const signToken = id => {
@@ -26,14 +28,20 @@ const createSendToken = (user, statusCode, req, res) => {
   });
 };
 
-
 exports.signup = catchAsync(async (req, res, next) => {
   const signUpType = req.params.type;
   let newUser;
-  if(signUpType === 'team') {
-    newUser = await Team.create(req.body)
-  } else if(signUpType === 'user') {
-    newUser = await await User.create(req.body); 
+  const location = await getCoordsForAddress(req.body.location);
+  const data = {
+    email: req.body.email,
+    password: req.body.password,
+    name: req.body.name,
+    location
+  };
+  if (signUpType === 'team') {
+    newUser = await Team.create(data);
+  } else if (signUpType === 'user') {
+    newUser = await await User.create(data);
   } else {
     return next(new AppError('Invalid params or no params found', 401));
   }
@@ -49,9 +57,9 @@ exports.login = catchAsync(async (req, res, next) => {
 
   let user;
 
-  if(loginType === 'team') {  
+  if (loginType === 'team') {
     user = await Team.findOne({ email }).select('+password +loginAttempts');
-  } else if(loginType === 'user') {
+  } else if (loginType === 'user') {
     user = await User.findOne({ email }).select('+password +loginAttempts');
   } else {
     return next(new AppError('Invalid params or no params found', 401));
@@ -74,7 +82,7 @@ exports.login = catchAsync(async (req, res, next) => {
     user.loginAttempts += 1;
     await user.save();
     if (user.loginAttempts >= 10) {
-      setTimeout( async () => {
+      setTimeout(async () => {
         user.loginAttempts = 0;
         await user.save();
       }, 3600000);
@@ -103,7 +111,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  const freshUser = req.params.team ? await Team.findById(decoded.id) : await User.findById(decoded.id);
+  console.log(req.params.team, decoded.id);
+
+  const freshUser = req.params.team
+    ? await Team.findById(decoded.id)
+    : await User.findById(decoded.id);
 
   if (!freshUser) {
     return next(

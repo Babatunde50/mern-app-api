@@ -24,6 +24,20 @@ const teamSchema = new mongoose.Schema({
         minLength: 7,
         select: false
     },
+    photo: {
+      type: String,
+      default: 'default.jpeg'
+    },
+    location: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      }
+    },
     players: [
         {
          type: mongoose.Schema.ObjectId,

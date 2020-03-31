@@ -7,10 +7,10 @@ const {
   deleteMe,
   updateMePic,
   updateMePassword,
-  updateMeBasic,
-  uploadUserPhoto,
-  resizeUserPhoto
+  updateMeBasic
 } = require('../controllers/user');
+
+const { uploadUserPhoto, resizeUserPhoto } = require('../middleware/multer.js');
 
 const { protect, login, signup } = require('../controllers/auth');
 
@@ -25,7 +25,7 @@ router.use(protect);
 
 router.get('/me', getMe, getUser);
 router.patch('/update-me/basic-info', updateMeBasic);
-router.patch('/update-me/pics', uploadUserPhoto, resizeUserPhoto, updateMePic);
+router.patch('/update-me/pics', uploadUserPhoto, resizeUserPhoto("users"), updateMePic);
 router.patch('/update-me/password', updateMePassword);
 router.delete('/delete-me', deleteMe);
 

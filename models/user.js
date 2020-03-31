@@ -27,6 +27,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['player', 'referee', 'admin']
   },
+  location: {
+    lat: {
+      type: Number,
+      required: true,
+    },
+    lng: {
+      type: Number,
+      required: true,
+    }
+  },
   photo: {
     type: String,
     default: 'default.jpeg'
