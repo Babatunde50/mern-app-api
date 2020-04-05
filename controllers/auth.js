@@ -61,6 +61,7 @@ exports.login = catchAsync(async (req, res, next) => {
     user = await Team.findOne({ email }).select('+password +loginAttempts');
   } else if (loginType === 'user') {
     user = await User.findOne({ email }).select('+password +loginAttempts');
+    console.log(user);
   } else {
     return next(new AppError('Invalid params or no params found', 401));
   }

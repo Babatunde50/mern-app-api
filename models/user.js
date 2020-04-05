@@ -29,12 +29,10 @@ const userSchema = new mongoose.Schema({
   },
   location: {
     lat: {
-      type: Number,
-      required: true,
+      type: Number
     },
     lng: {
-      type: Number,
-      required: true,
+      type: Number
     }
   },
   photo: {
@@ -128,6 +126,6 @@ userSchema.pre('save', function(next) {
   next();
 });
 
-userSchema.index({ name: "text" });
+userSchema.index({ name: 'text' });
 
 module.exports = mongoose.model('User', userSchema);
