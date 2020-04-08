@@ -7,7 +7,9 @@ const {
   deleteTeam,
   updateTeamBasics,
   updateTeamPassword,
-  updateTeamPic
+  updateTeamPic,
+  acceptPlayerRequest,
+  getNotification
 } = require('../controllers/team');
 
 const { uploadUserPhoto, resizeUserPhoto } = require('../middleware/multer.js');
@@ -25,6 +27,7 @@ router.get('/:id', getTeam);
 // router.use(protect);
 
 router.get('/:team/me', protect, getMe, getTeam);
+router.get('/:team/notifications/:notificationId', protect, getNotification )
 router.patch('/:team/update-me/basic-info', protect, updateTeamBasics);
 router.patch(
   '/:team/update-me/pics',
@@ -34,6 +37,7 @@ router.patch(
   updateTeamPic
 );
 router.patch('/:team/update-me/password', protect, updateTeamPassword);
+router.post('/:team/requests/accept', protect, acceptPlayerRequest);
 router.delete('/:team/delete-me', protect, deleteTeam);
 
 module.exports = router;

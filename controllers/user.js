@@ -1,8 +1,8 @@
 const User = require('../models/user');
+const Notification = require('../models/notification');
 const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-errors');
 const factory = require('./handler-factory');
-
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -70,15 +70,36 @@ exports.updateMePassword = catchAsync(async (req, res, next) => {
   }
   user.password = filteredBody.newPassword;
   await user.save();
- const newUser = {
-   ...user._doc,
-   password: undefined,
-   passwordChangedAt: undefined
- }
+  const newUser = {
+    ...user._doc,
+    password: undefined,
+    passwordChangedAt: undefined
+  };
   res.status(200).json({
     status: 'success',
     data: {
       user: newUser
+    }
+  });
+});
+
+exports.joinTeamRequest = catchAsync(async (req, res, next) => {
+  if (req.user.type !== 'player') {
+    return next(
+      new AppError('Only a player can send a request to join a team.', 403)
+    );
+  }
+  const data = {
+    userId: req.user._id,
+    type: "send",
+    teamId: req.body.teamId,
+    message: req.body.message || 'I will like to be part of this great team.'
+  };
+  const newNotification = await Notification.create(data);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      notification: newNotification
     }
   });
 });

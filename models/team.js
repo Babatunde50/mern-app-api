@@ -5,65 +5,80 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const slugify = require('slugify');
 
-const teamSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  email: {
-    type: String,
-    required: [true, 'An E-Mail is required'],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email']
-  },
-  password: {
-    type: String,
-    required: [true, 'A password is required'],
-    minLength: 7,
-    select: false
-  },
-  photo: {
-    type: String,
-    default: 'default.jpeg'
-  },
-  location: {
-    lat: {
-      type: Number,
-      required: true
+const Notification = require('./notification');
+
+const teamSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true
     },
-    lng: {
-      type: Number,
-      required: true
-    }
-  },
-  players: [
-    {
+    email: {
+      type: String,
+      required: [true, 'An E-Mail is required'],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, 'Please provide a valid email']
+    },
+    password: {
+      type: String,
+      required: [true, 'A password is required'],
+      minLength: 7,
+      select: false
+    },
+    photo: {
+      type: String,
+      default: 'default.jpeg'
+    },
+    location: {
+      lat: {
+        type: Number,
+        required: true
+      },
+      lng: {
+        type: Number,
+        required: true
+      }
+    },
+    players: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
+    ],
+    slug: {
+      type: String
+    },
+    captain: {
       type: mongoose.Schema.ObjectId,
       ref: 'User'
+    },
+    loginAttempts: {
+      type: Number,
+      default: 0,
+      select: false
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    isActive: {
+      type: Boolean,
+      default: true,
+      select: false
     }
-  ],
-  slug: {
-    type: String
   },
-  captain: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'User'
-  },
-  loginAttempts: {
-    type: Number,
-    default: 0,
-    select: false
-  },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  isActive: {
-    type: Boolean,
-    default: true,
-    select: false
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    timestamps: true
   }
+);
+
+teamSchema.virtual('notifications', {
+  ref: 'Notification',
+  localField: '_id',
+  foreignField: 'teamId'
 });
 
 teamSchema.pre('save', async function(next) {
